@@ -16,9 +16,40 @@ const fetchProductsFailure = () => ({
 
 export const fetchProducts = () => (dispatch) => {
     dispatch(fetchProductsRequest());
-    axios.get('https://ecom-data-project.herokuapp.com/prods')   
+    axios.get('http://localhost:8080/paratha')   
         .then((res) => dispatch(fetchProductsSuccess(res.data)))
         .catch((err) => dispatch(fetchProductsFailure(console.log(err.message))))
+}
+
+
+const AddonsRequest = () => ({
+    type: types.ADD_ADDONS_LOADING
+})
+
+const AddonsSuccess = (payload) => ({
+    type: types.ADD_ADDONS_SUCCESS,
+    payload
+})
+
+const AddonsFailure = () => ({
+    type: types.ADD_ADDONS_FAILURE
+})
+
+export const Add_Addons = (id,aa,bb,cc,dd,ee,ff) => (dispatch) => {
+    dispatch(AddonsRequest());
+    axios.patch(`http://localhost:8080/paratha/${id}`,{
+        Addons : [{
+            Extra_Sauce: aa,
+            Yogurt: bb,
+            Cheese: cc,
+            Corn: dd,
+            Cabbage: ee,
+            Fenugreek: ff
+       }]
+
+    }).then((res) => dispatch(AddonsSuccess(res.data)))
+        .then((res) => dispatch(fetchProducts(res.data)))
+        .catch((err) => dispatch(AddonsFailure(console.log(err.message))))
 }
 
 
@@ -111,4 +142,46 @@ export const patchProduct = (id, data) => (dispatch) => {
         .then((r) => dispatch(patch_cart_Success(r.data)))
         .then((res) => dispatch(fetchCartData()))
         .catch((e) => dispatch(patch_cart_Failure(e.message)))
+}
+
+const fetchOrdersRequest = () => ({
+    type: types.FETCH_ORDERS_PRODUCTS_REQUEST
+})
+
+const fetchOrdersSuccess = (payload) => ({
+    type: types.FETCH_ORDERS_PRODUCTS_SUCCESS,
+    payload
+})
+
+const fetchOrdersFailure = () => ({
+    type: types.FETCH_ORDERS_PRODUCTS_FAILURE
+})
+
+export const fetchOrders = () => (dispatch) => {
+    dispatch(fetchOrdersRequest());
+    axios.get('http://localhost:8080/orders')   
+        .then((res) => dispatch(fetchOrdersSuccess(res.data)))
+        .catch((err) => dispatch(fetchOrdersFailure(console.log(err.message))))
+}
+
+const add_orders_Request = () => ({
+    type: types.ADD_ORDERS_PRODUCT_REQUEST
+})
+
+const add_orders_Success = (payload) => ({
+    type: types.ADD_ORDERS_PRODUCT_SUCCESS,
+    payload
+})
+
+const add_orders_Failure = (payload) => ({
+    type: types.ADD_ORDERS_PRODUCT_FAILURE,
+    payload
+})
+
+export const addOrders = (data) => (dispatch) => {
+    dispatch(add_orders_Request());
+    axios.post(`http://localhost:8080/orders`, data)
+        .then((r) => dispatch(add_orders_Success(r.data)))
+        .then((res) => dispatch(fetchOrders()))
+        .catch((e) => dispatch(add_orders_Failure(e.message)))
 }

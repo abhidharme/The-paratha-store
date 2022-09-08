@@ -11,7 +11,6 @@ import {
   useColorModeValue,
   Stack,
   useColorMode,
-  Center,
   Icon,
   Image
 } from '@chakra-ui/react';
@@ -20,28 +19,19 @@ import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import { RiShoppingCartFill } from "react-icons/ri"
 import { CartCounter } from './CartCounter';
 
-// const NavLink = ({ children }: { children: ReactNode }) => (
-//   <Link
-//     px={2}
-//     py={1}
-//     rounded={'md'}
-//     _hover={{
-//       textDecoration: 'none',
-//       bg: useColorModeValue('gray.200', 'gray.700'),
-//     }}
-//     href={'#'}>
-//     {children}
-//   </Link>
-// );
+
 
 export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
+
+
   return (
     <>
-      <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
+      <Box  bg={useColorModeValue('gray.100', 'gray.900')} w={'full'} px={4}>
         <Flex h={20} alignItems={'center'} justifyContent={'space-between'}>
-          <Box>
+          <Box onClick={() => navigate('/')}>
           <Image cursor={'pointer'}
           objectFit={'cover'}
           borderRadius='full'

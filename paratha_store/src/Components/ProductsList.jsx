@@ -31,7 +31,7 @@ export default function ProductsList() {
 
   return (
     <>
-    //maping the paratha products 
+    {/*maping the paratha products */}
       {products.map((el) => (
 
         <Container key={el.id} style={{ boxShadow: 'rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px', marginTop: "15px" }} maxW={'7xl'}>

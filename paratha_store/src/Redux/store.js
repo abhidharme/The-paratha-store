@@ -4,8 +4,9 @@ import { reducer } from "./reducer";
 
 
 const rootReducer = combineReducers({
-    products:reducer
+    products: reducer
 });
+
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
 export const store = legacy_createStore(rootReducer,

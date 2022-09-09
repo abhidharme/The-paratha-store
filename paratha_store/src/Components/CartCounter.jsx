@@ -1,17 +1,15 @@
 import React, { useEffect } from 'react'
 import { Box } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
-import { useDispatch , useSelector } from 'react-redux/es/exports';
+import { useDispatch, useSelector } from 'react-redux/es/exports';
 import { fetchCartData } from '../Redux/action';
 
 export const CartCounter = () => {
 
-   const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-
-  const  {cart}  = useSelector((state) => state.products)
-
-//console.log('cart',cart)
+//getting cart data from redux store
+  const { cart } = useSelector((state) => state.products)
 
   useEffect(() => {
     if (cart?.length === 0) {
@@ -33,6 +31,7 @@ export const CartCounter = () => {
       top={"-2"}
     >
       <Box padding="1px 5px 15px 5px">
+        {/*Cart Items Count Show*/}
         {cart?.length ? cart.length : 0}
       </Box>
     </Box>

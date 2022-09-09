@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Image,
@@ -25,10 +25,6 @@ export const Cart = () => {
 
   var { cart } = useSelector((state) => state.products)
   const [quantity, setQuantity] = useState(1);
-  var sum = 0;
-  //console.log(cart)
-
-
 
   const dispatch = useDispatch();
 
@@ -55,11 +51,11 @@ export const Cart = () => {
   var fenu = "";
   var cor="";
 
+  var sum = 0;
 
   return (
     <>
       <Box>
-        {/*<LoadingCart />*/}
         <Navbar />
       </Box>
       <Box>
@@ -132,7 +128,6 @@ export const Cart = () => {
             </Tbody>
           </Table>
         </Box>
-        {/* <Box><Checkout cart={cart} /></Box>*/}
       </Box>
       <Checkout cart={cart} />
     </>

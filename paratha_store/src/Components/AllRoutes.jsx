@@ -7,11 +7,11 @@ import { Orders } from '../Pages/Orders'
 export const AllRoutes = () => {
   return (
     <>
-    <Routes>
-    <Route path='/' element={<Home/> } />
-    <Route path='/cart' element={<Cart/> } />
-    <Route path='/orders' element={<Orders/> } />
-    </Routes>
+      <Routes>
+        <Route path='/' element={<Home />} /> 
+        <Route path='/cart' element={<Cart />} />
+        <Route path='/orders' element={<Orders />} />
+      </Routes>
     </>
   )
 }

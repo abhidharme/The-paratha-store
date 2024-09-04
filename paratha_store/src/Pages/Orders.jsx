@@ -7,6 +7,7 @@ import {
   Text,
   Box,
   Center,
+  Image,
 } from '@chakra-ui/react';
 import { FaCheckCircle } from 'react-icons/fa';
 import React, { useEffect } from 'react';
@@ -14,23 +15,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders } from '../Redux/action';
 import Navbar from '../Components/Navbar';
 
-
 export const Orders = () => {
-
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchOrders())
-  }, []);
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   const { orders } = useSelector((state) => state.products);
 
-  var Tsum = 0;
-  var tprice = 0;
-
   return (
     <>
-      <Box><Navbar /></Box>
+      <Box>
+        <Navbar />
+      </Box>
       <Box py={6} px={5} min={'100vh'}>
         <Stack spacing={4} width={'100%'} direction={'column'}>
           <Stack
@@ -51,16 +49,27 @@ export const Orders = () => {
               }}
               textAlign={'center'}>
               <Center>
-                <Heading position={'absolute'} top='14px' size={'lg'}><Text color="purple.400">Your Orders</Text>
+                <Heading position={'absolute'} top="14px" size={'lg'}>
+                  <Text color="purple.400">Your Orders</Text>
                 </Heading>
               </Center>
             </Stack>
           </Stack>
         </Stack>
         <Stack>
-          {
-            orders.map((el) => (
-              <Box position={'relative'} style={{ boxShadow: 'rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset' }} key={el.id}>
+          {orders.map((order) => {
+            let totalPrice = 0;
+            let totalAddonsPrice = 0;
+
+            return (
+              <Box
+                key={order._id}
+                position={'relative'}
+                style={{
+                  boxShadow:
+                    'rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset',
+                  marginBottom: '20px',
+                }}>
                 <Box
                   position="absolute"
                   top="10px"
@@ -75,71 +84,134 @@ export const Orders = () => {
                     fontSize="sm"
                     fontWeight="600"
                     rounded="xl">
-                    Delivery Charge:₹{el.delivery_charge}
+                    Delivery Charge: ₹{order.delivery_charge}
                   </Text>
                 </Box>
-                <br></br>
-                <br></br>
-                {el.order_data.map((pri) => {
-                  tprice = tprice + pri.price
-                })}
-                {el.order_data.map((ele) => (
-                  <Stack
-                    p={2}
-                    py={5}
-                    w="full"
-                    justifyContent={{
-                      base: 'flex-start',
-                      md: 'space-around',
-                    }}
-                    direction={{
-                      base: 'column',
-                      md: 'row',
-                    }}
-                    alignItems={{ md: 'center' }}>
-                    <Heading textAlign={'start'} w='220px' size={'md'}>{ele.title}</Heading>
-                    <Text textAlign={'start'} w={'100px'}>Price: ₹{ele.price}</Text>
-                    <Text>Quantity: {ele.quantity}</Text>
-                    <Heading size={'sm'}>{"Addons:"}</Heading>
+                <Box p={4}>
+                  {order.order_data.map((item) => {
+                    totalPrice += item.price * item.quantity;
+                    const addonsTotal = item.Addons.reduce((sum, addon) => {
+                      return (
+                        sum +
+                        (addon.Extra_Sauce || 0) +
+                        (addon.Yogurt || 0) +
+                        (addon.Cheese || 0) +
+                        (addon.Corn || 0) +
+                        (addon.Cabbage || 0) +
+                        (addon.Fenugreek || 0)
+                      );
+                    }, 0);
 
-                    {ele.Addons.map((desc, id) => (
+                    totalAddonsPrice += addonsTotal;
 
-                      <List key={desc.id} spacing={3} textAlign="start">
-                        {desc.Extra_Sauce.current > 0 ? <ListItem ><ListIcon as={FaCheckCircle} color="green.500" />Extra Sauce: ₹{desc.Extra_Sauce.current}</ListItem> : <ListItem display={'none'}></ListItem>}
-                        {desc.Yogurt.current > 0 ? <ListItem ><ListIcon as={FaCheckCircle} color="green.500" />Yogurt: ₹{desc.Yogurt.current}</ListItem> : <ListItem display={'none'}></ListItem>}
-                        {desc.Cheese.current > 0 ? <ListItem ><ListIcon as={FaCheckCircle} color="green.500" />Cheese: ₹{desc.Cheese.current}</ListItem> : <ListItem display={'none'}></ListItem>}
-                        {desc.Corn.current > 0 ? <ListItem ><ListIcon as={FaCheckCircle} color="green.500" />Corn: ₹{desc.Corn.current}</ListItem> : <ListItem display={'none'}></ListItem>}
-                        {desc.Cabbage.current > 0 ? <ListItem ><ListIcon as={FaCheckCircle} color="green.500" />Cabbage: ₹{desc.Cabbage.current}</ListItem> : <ListItem display={'none'}></ListItem>}
-                        {desc.Fenugreek.current > 0 ? <ListItem ><ListIcon as={FaCheckCircle} color="green.500" />Fenugreek: ₹{desc.Fenugreek.current}</ListItem> : <ListItem display={'none'}></ListItem>}
-                      </List>
-                    ))}
-                    {ele.Addons.map((e) => {
-                      Tsum = Tsum + e.Extra_Sauce.current + e.Yogurt.current + e.Cheese.current + e.Corn.current + e.Cabbage.current + e.Fenugreek.current;
-                    })}
-                    <br></br>
-                    <Stack>
-                    </Stack>
-                  </Stack>
-                ))}
+                    return (
+                      <Stack
+                        key={item._id}
+                        p={2}
+                        py={5}
+                        w="full"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: 'space-around',
+                        }}
+                        direction={{
+                          base: 'column',
+                          md: 'row',
+                        }}
+                        alignItems={{ md: 'center' }}>
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          boxSize="150px"
+                          objectFit="cover"
+                          borderRadius="lg"
+                        />
+                        <Heading textAlign={'start'} w="220px" size={'md'}>
+                          {item.title}
+                        </Heading>
+                        <Text textAlign={'start'} w={'100px'}>
+                          Price: ₹{item.price}
+                        </Text>
+                        <Text>Quantity: {item.quantity}</Text>
+                        <Heading size={'sm'}>{"Addons:"}</Heading>
+                        <List spacing={3} textAlign="start">
+                          {item.Addons.map((addon, id) => (
+                            <React.Fragment key={id}>
+                              {addon.Extra_Sauce > 0 && (
+                                <ListItem>
+                                  <ListIcon
+                                    as={FaCheckCircle}
+                                    color="green.500"
+                                  />
+                                  Extra Sauce: ₹{addon.Extra_Sauce}
+                                </ListItem>
+                              )}
+                              {addon.Yogurt > 0 && (
+                                <ListItem>
+                                  <ListIcon
+                                    as={FaCheckCircle}
+                                    color="green.500"
+                                  />
+                                  Yogurt: ₹{addon.Yogurt}
+                                </ListItem>
+                              )}
+                              {addon.Cheese > 0 && (
+                                <ListItem>
+                                  <ListIcon
+                                    as={FaCheckCircle}
+                                    color="green.500"
+                                  />
+                                  Cheese: ₹{addon.Cheese}
+                                </ListItem>
+                              )}
+                              {addon.Corn > 0 && (
+                                <ListItem>
+                                  <ListIcon
+                                    as={FaCheckCircle}
+                                    color="green.500"
+                                  />
+                                  Corn: ₹{addon.Corn}
+                                </ListItem>
+                              )}
+                              {addon.Cabbage > 0 && (
+                                <ListItem>
+                                  <ListIcon
+                                    as={FaCheckCircle}
+                                    color="green.500"
+                                  />
+                                  Cabbage: ₹{addon.Cabbage}
+                                </ListItem>
+                              )}
+                              {addon.Fenugreek > 0 && (
+                                <ListItem>
+                                  <ListIcon
+                                    as={FaCheckCircle}
+                                    color="green.500"
+                                  />
+                                  Fenugreek: ₹{addon.Fenugreek}
+                                </ListItem>
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </List>
+                      </Stack>
+                    );
+                  })}
+                </Box>
                 <Center>
                   <Heading>
                     <Text as={'span'} color={'green.400'}>
-                      <span></span>
-                      Total Price: ₹{el.delivery_charge + Tsum + tprice}
+                      Total Price: ₹
+                      {order.delivery_charge + totalPrice + totalAddonsPrice}
                     </Text>
                   </Heading>
                 </Center>
-                <br></br>
-
-                <Text display={'none'}>{tprice = 0}</Text>
-                <Text display={'none'}>{Tsum = 0}</Text>
+                <br />
               </Box>
-
-            ))
-          }
+            );
+          })}
         </Stack>
-
       </Box>
     </>
-  )
-}
+  );
+};

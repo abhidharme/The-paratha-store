@@ -81,8 +81,8 @@ export default function ProductsList() {
                   </Text>
                 </Stack>
                 <Box>
-                 {/* passing props to Addons child component for add Addons and products to cart*/}
-                  <Addons addonsdata={el.Addons} id_data={el.id} title={el.title} img={el.image} price={el.price} quantity={el.quantity} />
+                  {/* passing props to Addons child component for add Addons and products to cart*/}
+                  <Addons addonsdata={el.Addons} mongoId={el._id} id_data={el.id} title={el.title} img={el.image} price={el.price} quantity={el.quantity} />
 
                 </Box>
               </Stack>

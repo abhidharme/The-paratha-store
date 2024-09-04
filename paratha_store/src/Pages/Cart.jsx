@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react';
 import {
   Box,
   Image,
@@ -11,47 +11,36 @@ import {
   Th,
   Td,
   Flex,
-} from '@chakra-ui/react'
-import { DeleteIcon } from '@chakra-ui/icons'
-import { useDispatch, useSelector } from 'react-redux'
-import { AddIcon, MinusIcon } from '@chakra-ui/icons'
-import { deleteProduct, patchProduct } from '../Redux/action'
-import Navbar from '../Components/Navbar'
-import Checkout from '../Components/Checkout'
-
-
+  Text,
+} from '@chakra-ui/react';
+import { DeleteIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteProduct, patchProduct } from '../Redux/action';
+import Navbar from '../Components/Navbar';
+import Checkout from '../Components/Checkout';
 
 export const Cart = () => {
-
-  var { cart } = useSelector((state) => state.products)
-  const [quantity, setQuantity] = useState(1);
-
+  const { cart } = useSelector((state) => state.products);
   const dispatch = useDispatch();
 
+  // Function to remove item from cart
   const removeItem = (id) => {
-    dispatch(deleteProduct(id))
-  }
+    dispatch(deleteProduct(id));
+  };
 
-  const AddQtyItem = (id) => {
-    setQuantity(quantity + 1)
-    dispatch(patchProduct(id, quantity))
-  }
+  // Function to increase the quantity of a cart item
+  const AddQtyItem = (id, currentQuantity) => {
+    const updatedQuantity = currentQuantity + 1;
+    dispatch(patchProduct(id, updatedQuantity));
+  };
 
-  const DecreQtyItem = (id) => {
-    if (quantity > 1) {
-      setQuantity((quantity) => quantity - 1)
+  // Function to decrease the quantity of a cart item
+  const DecreQtyItem = (id, currentQuantity) => {
+    if (currentQuantity > 1) {
+      const updatedQuantity = currentQuantity - 1;
+      dispatch(patchProduct(id, updatedQuantity));
     }
-    dispatch(patchProduct(id, quantity))
-  }
-
-  var sau = "";
-  var che = "";
-  var yog = "";
-  var cabb = "";
-  var fenu = "";
-  var cor="";
-
-  var sum = 0;
+  };
 
   return (
     <>
@@ -59,79 +48,120 @@ export const Cart = () => {
         <Navbar />
       </Box>
       <Box>
-        <Box>
-          <Table>
-            <Thead>
-              <Tr >
-                <Th>Item Image</Th>
-                <Th>Name</Th>
-                <Th>Addons</Th>
-                <Th>Total Quantity</Th>
-                <Th>Total Price</Th>
-                <Th>Remove</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {
-                cart.map((el) => (
-                  <Tr key={el.id} >
-                    <Link to={`/details/${el.id}`} ><td>
-                      <Image
-                        rounded={'lg'}
-                        height={150}
-                        width={150}
-                        objectFit={'contain'}
-                        src={el.image}
-                          />
-                    </td></Link>
-                    <Td><h5>{el.title}</h5></Td>
-                    <Td>{el.Addons.map((ele) => {
-                      if (ele.Extra_Sauce.current > 0) {
-                        sau = 'Extra_Sauce'
-                      } if (ele.Yogurt.current > 0) {
-                        yog = 'Yogurt'
-                      } if (ele.Cheese.current > 0) {
-                        che = 'Cheese'
-                      } if (ele.Cabbage.current > 0) {
-                        cabb = 'Cabbage'
-                      } if (ele.Fenugreek.current > 0) {
-                        fenu = 'Fenugreek'
-                      } if (ele.Corn.current > 0) {
-                        cor = 'Corn'
-                      }
-                    })}
-                      <h5>{`${sau} ${yog} ${che} ${cabb} ${fenu} ${cor}`}</h5></Td>
-                      <p style={{display:"none"}}>{`${sau=""} ${che=""} ${yog=""}  ${cabb=""} ${fenu=""} ${cor=""}`}</p>
+        <Table>
+          <Thead>
+            <Tr>
+              <Th>Item Image</Th>
+              <Th>Addons</Th>
+              <Th>Total Quantity</Th>
+              <Th>Total Price</Th>
+              <Th>Remove</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {cart.map((el) => {
+              // Calculating addon details and total addon price
+              let addonSummary = [];
+              let addonTotal = 0;
 
-                    <Td>
-                      <Box>
-                        <Flex>
-                          {el.quantity != 1 ? <Box><Button borderTopRightRadius="0" borderBottomRightRadius="0" onClick={() => DecreQtyItem(el.id)}  ><MinusIcon /></Button></Box> : <Box><Button isDisabled borderTopRightRadius="0" borderBottomRightRadius="0" onClick={() => DecreQtyItem(el.id)}  ><MinusIcon /></Button></Box>}
-                          <Box><Button as={"Text"} borderRadius="0">{el.quantity}</Button></Box>
-                          <Box><Button borderTopLeftRadius="0" borderBottomLeftRadius="0" onClick={() => AddQtyItem(el.id)}><AddIcon /></Button></Box>
-                        </Flex>
+              el.Addons.forEach((addon) => {
+                if (addon.Extra_Sauce > 0) {
+                  addonSummary.push('Extra Sauce');
+                  addonTotal += addon.Extra_Sauce;
+                }
+                if (addon.Yogurt > 0) {
+                  addonSummary.push('Yogurt');
+                  addonTotal += addon.Yogurt;
+                }
+                if (addon.Cheese > 0) {
+                  addonSummary.push('Cheese');
+                  addonTotal += addon.Cheese;
+                }
+                if (addon.Corn > 0) {
+                  addonSummary.push('Corn');
+                  addonTotal += addon.Corn;
+                }
+                if (addon.Cabbage > 0) {
+                  addonSummary.push('Cabbage');
+                  addonTotal += addon.Cabbage;
+                }
+                if (addon.Fenugreek > 0) {
+                  addonSummary.push('Fenugreek');
+                  addonTotal += addon.Fenugreek;
+                }
+              });
+
+              // Calculate the total price including addons
+              const totalPrice = el.price * el.quantity + addonTotal;
+
+              return (
+                <Tr key={el._id}>
+                  <Td>
+                    <Link to={`/details/${el._id}`}>
+                      <Box position="relative" width={150} height={150}>
+                        <Image
+                          rounded={'lg'}
+                          height="100%"
+                          width="100%"
+                          objectFit={'contain'}
+                          src={el.image}
+                        />
+                        <Text
+                          position="absolute"
+                          bottom={0}
+                          left="50%"
+                          transform="translateX(-50%)"
+                          bg="rgba(0, 0, 0, 0.6)"
+                          color="white"
+                          width="100%"
+                          textAlign="center"
+                          py={1}
+                        >
+                          {el.title}
+                        </Text>
                       </Box>
-                    </Td>
-                    {el.Addons.map((ele) => {
-                      sum = sum + ele.Extra_Sauce.current + ele.Yogurt.current + ele.Cheese.current + ele.Corn.current + ele.Cabbage.current + ele.Fenugreek.current;
-                    })}
-                    <Td>
-                      <h5>₹{el.price * el.quantity + sum}</h5></Td>
-                      <p style={{display:"none"}}>{sum =0}</p>
-                    <Td ><Button onClick={() => removeItem(el.id)}
-                    >
+                    </Link>
+                  </Td>
+                  <Td>
+                    <h5>{addonSummary.join(', ')}</h5>
+                  </Td>
+                  <Td>
+                    <Flex>
+                      <Button
+                        borderTopRightRadius="0"
+                        borderBottomRightRadius="0"
+                        onClick={() => DecreQtyItem(el._id, el.quantity)}
+                        isDisabled={el.quantity <= 1}
+                      >
+                        <MinusIcon />
+                      </Button>
+                      <Button as={"Text"} borderRadius="0">
+                        {el.quantity}
+                      </Button>
+                      <Button
+                        borderTopLeftRadius="0"
+                        borderBottomLeftRadius="0"
+                        onClick={() => AddQtyItem(el._id, el.quantity)}
+                      >
+                        <AddIcon />
+                      </Button>
+                    </Flex>
+                  </Td>
+                  <Td>
+                    <h5>₹{totalPrice}</h5>
+                  </Td>
+                  <Td>
+                    <Button onClick={() => removeItem(el._id)}>
                       <DeleteIcon />
-                    </Button></Td>
-                  </Tr>
-                ))
-              }
-            </Tbody>
-          </Table>
-        </Box>
+                    </Button>
+                  </Td>
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
       </Box>
       <Checkout cart={cart} />
     </>
-  )
-}
-
-
+  );
+};

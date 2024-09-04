@@ -5,9 +5,8 @@ import ProductsList from '../Components/ProductsList'
 export const Home = () => {
   return (
     <div>
-    <Navbar/>
-    <ProductsList/>
+      <Navbar />
+      <ProductsList />
     </div>
   )
 }
-  

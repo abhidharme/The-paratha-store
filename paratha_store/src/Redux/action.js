@@ -1,5 +1,6 @@
 import axios from "axios"
 import * as types from "./actionTypes";
+import { BASE_URL } from "../config";
 
 //actions creators for paratha products 
 
@@ -19,7 +20,7 @@ const fetchProductsFailure = () => ({
 
 export const fetchProducts = () => (dispatch) => {
     dispatch(fetchProductsRequest());
-    axios.get('https://paratha-products.herokuapp.com/paratha')
+    axios.get(`${BASE_URL}/products`)
         .then((res) => dispatch(fetchProductsSuccess(res.data)))
         .catch((err) => dispatch(fetchProductsFailure(console.log(err.message))))
 }
@@ -38,9 +39,9 @@ const AddonsFailure = () => ({
     type: types.ADD_ADDONS_FAILURE
 })
 
-export const Add_Addons = (id, Extra_Sauce, Yogurt, Cheese, Corn, Cabbage, Fenugreek) => (dispatch) => {
+export const Add_Addons = (mongoId, Extra_Sauce, Yogurt, Cheese, Corn, Cabbage, Fenugreek) => (dispatch) => {
     dispatch(AddonsRequest());
-    axios.patch(`https://paratha-products.herokuapp.com/paratha/${id}`, {
+    axios.patch(`${BASE_URL}/products/${mongoId}`, {
         Addons: [{
             Extra_Sauce: Extra_Sauce,
             Yogurt: Yogurt,
@@ -51,8 +52,8 @@ export const Add_Addons = (id, Extra_Sauce, Yogurt, Cheese, Corn, Cabbage, Fenug
         }]
 
     }).then((res) => dispatch(AddonsSuccess(res.data)))
-        .then((res) => dispatch(fetchProducts(res.data)))
-        .catch((err) => dispatch(AddonsFailure(console.log(err.message))))
+        .then(() => dispatch(fetchProducts()))
+        .catch((err) => dispatch(AddonsFailure(console.log('iiiii', err.message))))
 }
 
 
@@ -77,7 +78,7 @@ const add_cart_Failure = (payload) => ({
 
 export const addProduct = (data) => (dispatch) => {
     dispatch(add_cart_Request());
-    axios.post(`https://paratha-cart.herokuapp.com/cart`, data)
+    axios.post(`${BASE_URL}/cart`, data)
         .then((r) => dispatch(add_cart_Success(r.data)))
         .then((res) => dispatch(fetchCartData()))
         .catch((e) => dispatch(add_cart_Failure(e.message)))
@@ -101,7 +102,7 @@ const fetch_cart_Failure = () => ({
 
 export const fetchCartData = () => (dispatch) => {
     dispatch(fetch_cart_Request());
-    axios.get('https://paratha-cart.herokuapp.com/cart')
+    axios.get(`${BASE_URL}/cart`)
         .then((r) => dispatch(fetch_cart_Success(r.data)))
         .catch((err) => console.log(err.message))
         .catch((err) => dispatch(fetch_cart_Failure(err.data)))
@@ -125,7 +126,7 @@ const delete_cart_Failure = (Payload) => ({
 
 export const deleteProduct = (id) => (dispatch) => {
     dispatch(delete_cart_Request());
-    axios.delete(`https://paratha-cart.herokuapp.com/cart/${id}`)
+    axios.delete(`${BASE_URL}/cart/${id}`)
         .then((res) => {
             dispatch(delete_cart_Success(res.data))
         })
@@ -151,7 +152,7 @@ const patch_cart_Failure = () => ({
 
 export const patchProduct = (id, data) => (dispatch) => {
     dispatch(patch_cart_Request());
-    axios.patch(`https://paratha-cart.herokuapp.com/cart/${id}`,
+    axios.patch(`${BASE_URL}/cart/${id}`,
         { quantity: `${data}` }
     )
         .then((r) => dispatch(patch_cart_Success(r.data)))
@@ -179,7 +180,7 @@ const fetchOrdersFailure = () => ({
 
 export const fetchOrders = () => (dispatch) => {
     dispatch(fetchOrdersRequest());
-    axios.get('https://paratha-orders-data.herokuapp.com/orders')
+    axios.get(`${BASE_URL}/order`)
         .then((res) => dispatch(fetchOrdersSuccess(res.data)))
         .catch((err) => dispatch(fetchOrdersFailure(console.log(err.message))))
 }
@@ -202,7 +203,7 @@ const add_orders_Failure = (payload) => ({
 
 export const addOrders = (data) => (dispatch) => {
     dispatch(add_orders_Request());
-    axios.post(`https://paratha-orders-data.herokuapp.com/orders`, data)
+    axios.post(`${BASE_URL}/order`, data)
         .then((r) => dispatch(add_orders_Success(r.data)))
         .then(() => dispatch(fetchOrders()))
         .catch((e) => dispatch(add_orders_Failure(e.message)))

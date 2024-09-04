@@ -15,138 +15,75 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { useDispatch } from 'react-redux';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { addProduct, Add_Addons, fetchCartData } from '../Redux/action';
 
-
-
-
-
-export default function Addons({ addonsdata, id_data, title, img, price }) {
+export default function Addons({ addonsdata, id_data, title, img, price, mongoId }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // states for checkbox
-  const [sauce, setSauce] = useState(true);
-  const [cheese, setCheese] = useState(true);
-  const [yogurt, setYogurt] = useState(true);
-  const [corn, setCorn] = useState(true);
-  const [fenugreek, setFenugreek] = useState(true);
-  const [cabbage, setCabbage] = useState(true);
+  // State to manage addon selections
+  const [selectedAddons, setSelectedAddons] = useState({
+    Extra_Sauce: addonsdata?.Extra_Sauce?.current || 0,
+    Yogurt: addonsdata?.Yogurt?.current || 0,
+    Cheese: addonsdata?.Cheese?.current || 0,
+    Corn: addonsdata?.Corn?.current || 0,
+    Cabbage: addonsdata?.Cabbage?.current || 0,
+    Fenugreek: addonsdata?.Fenugreek?.current || 0,
+  });
 
-
-  // use useRef for sending current value of addons
-  const sauce1 = useRef(0);
-  const cheese1 = useRef(0);
-  const yogurt1 = useRef(0);
-  const corn1 = useRef(0);
-  const fenugreek1 = useRef(0);
-  const cabbage1 = useRef(0);
   const dispatch = useDispatch();
+  const toast = useToast();
 
-  const toast = useToast()
+  const handleChange = (addonKey, price) => {
+    setSelectedAddons(prev => ({
+      ...prev,
+      [addonKey]: prev[addonKey] === 0 ? price : 0,
+    }));
+  };
 
-  const addCart = (title, image, price, addonsdata, id) => {
-    var data = {
-      title: title,
-      image: image,
-      price: price,
-      Addons: addonsdata,
-      quantity: 1
-    }
-     //dispatch Adding data to cart 
-    dispatch(addProduct(data))
-    
+  const addCart = () => {
+    const addonsArray = [selectedAddons]; // Converting object to array as per your schema
 
-    sauce1.current = 0;
-    yogurt1.current = 0;
-    cheese1.current = 0;
-    corn1.current = 0;
-    cabbage1.current = 0;
-    fenugreek1.current = 0;
-     // after dispatch cart products dispatch updates addons to it's initial state zero;
-    dispatch(Add_Addons(id, sauce1, yogurt1, cheese1, corn1, cabbage1, fenugreek1))
+    const data = {
+      title,
+      image: img,
+      price,
+      Addons: addonsArray,
+      quantity: 1,
+    };
 
-    return toast({
-      title: ` Successfully Added to Cart`,
+    // Dispatch to add product to cart
+    dispatch(addProduct(data));
+
+    // Reset addons after adding to cart
+    setSelectedAddons({
+      Extra_Sauce: 0,
+      Yogurt: 0,
+      Cheese: 0,
+      Corn: 0,
+      Cabbage: 0,
+      Fenugreek: 0,
+    });
+
+    // Dispatch to update the addons in the database
+    dispatch(Add_Addons(mongoId, selectedAddons));
+    dispatch(fetchCartData());
+
+    toast({
+      title: `Successfully Added to Cart`,
       position: 'top',
       status: "success",
       isClosable: true,
-    })
-  }
+    });
 
-  const handleChange = (id, data) => {
-    if (data == 5) {
-      if (sauce == true) {
-        sauce1.current = data;
-      }
-      else if (!sauce) {
-        sauce1.current = 0;
-      }
-      setSauce(!sauce)
-    }
-    if (data == 15) {
-      if (yogurt == true) {
-        yogurt1.current = 15;
-      }
-      else if (!yogurt) {
-        yogurt1.current = 0;
-      }
-      setYogurt(!yogurt)
-    }
-    if (data == 20) {
-      if (cheese == true) {
-        cheese1.current = 20;
-      }
-      else if (!cheese) {
-        cheese1.current = 0;
-      }
-      setCheese(!cheese)
-    }
-    if (data == 10) {
-      if (corn == true) {
-        corn1.current = 10;
-      }
-      else if (!corn) {
-        corn1.current = 0;
-      }
-      setCorn(!corn)
-    }
-    if (data == 16) {
-      if (cabbage == true) {
-        cabbage1.current = 15;
-      }
-      else if (!cabbage) {
-        cabbage1.current = 0;
-      }
-      setCabbage(!cabbage)
-    }
-    if (data == 11) {
-      if (fenugreek == true) {
-        fenugreek1.current = 10;
-      }
-      else if (!fenugreek) {
-        fenugreek1.current = 0;
-      }
-      setFenugreek(!fenugreek)
-    }
-    //dispatch Add_Addons with addons values
-    dispatch(Add_Addons(id, sauce1, yogurt1, cheese1, corn1, cabbage1, fenugreek1))
-    dispatch(fetchCartData())
-  }
+    onClose(); // Close the modal after adding to cart
+  };
 
-  var sum_of_addoms = 0;
-      // doing sum of addons data price
-  addonsdata.map((ele) => {
-    sum_of_addoms = sum_of_addoms + ele.Extra_Sauce.current + ele.Yogurt.current + ele.Cheese.current + ele.Corn.current + ele.Cabbage.current + ele.Fenugreek.current
-  })
-
-
-
-
+  const sum_of_addons = Object.values(selectedAddons).reduce((acc, curr) => acc + curr, 0);
 
   return (
     <Box>
-        {/*Add to cart Button with open Addons CheckBoxes popup*/}
+      {/* Add to Cart Button with open Addons CheckBoxes popup */}
       <Button
         rounded={'none'}
         w={'full'}
@@ -171,35 +108,67 @@ export default function Addons({ addonsdata, id_data, title, img, price }) {
           <ModalHeader>Addons</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {addonsdata.map((e) => (
-
-              <Stack spacing={2}>
-                  {/*Addons CheckBoxes*/}
-                   
-                {id_data == 3 ? <Checkbox isDisabled>{'Extra Sauce (₹5)'}</Checkbox> : <Checkbox value={5} onChange={() => handleChange(id_data, 5)} colorScheme='green'>{'Extra Sauce (₹5)'}</Checkbox>}
-
-                {id_data == 1 || id_data == 3 ? <Checkbox isDisabled>{'Yogurt (₹15)'}</Checkbox> : <Checkbox value={15} onChange={() => handleChange(id_data, 15)} colorScheme='green'>{'Yogurt (₹15)'}</Checkbox>}
-
-                {id_data == 1 || id_data == 4 ? <Checkbox isDisabled value={20} onChange={() => handleChange(id_data, 20)} colorScheme='green'>{'Extra Cheese (₹20)'}</Checkbox> : <Checkbox value={20} onChange={() => handleChange(id_data, 20)} colorScheme='green'>{'Extra Cheese (₹20)'}</Checkbox>}
-
-                {id_data == 1 || id_data == 2 || id_data == 5 ? <Checkbox isDisabled value={10} onChange={() => handleChange(id_data, 10)} colorScheme='green'>{'Corn (₹10)'}</Checkbox> : <Checkbox value={10} onChange={() => handleChange(id_data, 10)} colorScheme='green'>{'Corn (₹10)'}</Checkbox>}
-
-                {id_data != 3 ? <Checkbox isDisabled>{'Fenugreek (₹10)'}</Checkbox> : <Checkbox value={11} onChange={() => handleChange(id_data, 11)} colorScheme='green'>{'Fenugreek (₹10)'}</Checkbox>}
-
-                {id_data != 3 ? <Checkbox isDisabled>{'Cabbage (₹15)'}</Checkbox> : <Checkbox value={16} onChange={() => handleChange(id_data, 16)} colorScheme='green'>{'Cabbage (₹15)'}</Checkbox>}
-              </Stack>
-            ))}
-
+            <Stack spacing={2}>
+              {/* Addons CheckBoxes */}
+              <Checkbox
+                isDisabled={id_data === 3}
+                isChecked={selectedAddons.Extra_Sauce !== 0}
+                onChange={() => handleChange('Extra_Sauce', 5)}
+                colorScheme='green'
+              >
+                Extra Sauce (₹5)
+              </Checkbox>
+              <Checkbox
+                isDisabled={id_data === 1 || id_data === 3}
+                isChecked={selectedAddons.Yogurt !== 0}
+                onChange={() => handleChange('Yogurt', 15)}
+                colorScheme='green'
+              >
+                Yogurt (₹15)
+              </Checkbox>
+              <Checkbox
+                isDisabled={id_data === 1 || id_data === 4}
+                isChecked={selectedAddons.Cheese !== 0}
+                onChange={() => handleChange('Cheese', 20)}
+                colorScheme='green'
+              >
+                Extra Cheese (₹20)
+              </Checkbox>
+              <Checkbox
+                isDisabled={id_data === 1 || id_data === 2 || id_data === 5}
+                isChecked={selectedAddons.Corn !== 0}
+                onChange={() => handleChange('Corn', 10)}
+                colorScheme='green'
+              >
+                Corn (₹10)
+              </Checkbox>
+              <Checkbox
+                isDisabled={id_data !== 3}
+                isChecked={selectedAddons.Fenugreek !== 0}
+                onChange={() => handleChange('Fenugreek', 10)}
+                colorScheme='green'
+              >
+                Fenugreek (₹10)
+              </Checkbox>
+              <Checkbox
+                isDisabled={id_data !== 3}
+                isChecked={selectedAddons.Cabbage !== 0}
+                onChange={() => handleChange('Cabbage', 15)}
+                colorScheme='green'
+              >
+                Cabbage (₹15)
+              </Checkbox>
+            </Stack>
           </ModalBody>
 
           <ModalFooter>
-            {/*Showing paratha price + Addons Price */}
-            <Button colorScheme='blue' mr={3} onClick={() => { onClose(); addCart(title, img, price, addonsdata, id_data) }}>
-              Confirm ₹{price + sum_of_addoms}
+            {/* Showing product price + Addons Price */}
+            <Button colorScheme='blue' mr={3} onClick={addCart}>
+              Confirm ₹{price + sum_of_addons}
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </Box>
-  )
+  );
 }
